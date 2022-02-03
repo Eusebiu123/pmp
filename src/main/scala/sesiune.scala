@@ -13,54 +13,26 @@ object Grammy {
 		val popular = Flip(0.2)
 	}
 
-	class Album(val p: Autor) {
+	class Album(val autor: Autor) {
 		val calitate=Select(0.27 -> "mica", 0.6 -> "medie",0.13 ->"mare")
 	}
     class Nominalizare(val p: Album) {
-		def getProb()
-        {
-            
-        }
+		def getProb() {
+            val albumNominalizat = CPD(p.calitate, p.autor.popular,
+                ('mica', false) -> Flip(0.003)
+                ('mica', true) -> Flip(0.014)
+                ('medie', false) -> Flip(0.016)
+                ('medie', true) -> Flip(0.043)
+                ('mare', false) -> Flip(0.047)
+                ('mare', true) -> Flip(0.18)
+        } 
 	}
 
 	
 	def main(args: Array[String]) {
-		val rd = new ResearchAndDevelopment()
-		val hr = new HumanResources()
-		val p = new Production(rd, hr)
-		val s = new Sales(p)
-		val f = new Finance(hr, s)
-		val firm = new Firm(rd, hr, p, s, f)
-        
-        val algorithm = Importance(10000, firm.health)
-        rd.state.setCondition((s: Double) => s >= 90)
-        algorithm.start()
-        algorithm.stop()
-        println("Mean(Firm.health|ResearchAndDevelopment.state >= 90) = " + algorithm.mean(firm.health))
-        rd.state.unobserve()
-        algorithm.kill()
-
-        val algorithm2 = Importance(10000, firm.health)
-        rd.state.setCondition((s: Double) => s >= 90)
-        hr.state.setCondition((s: Double) => s >= 95)
-        algorithm2.start()
-        algorithm2.stop()
-        println("Mean(Firm.health|ResearchAndDevelopment.state >= 90 & HumanResources.state >= 95) = " + algorithm2.mean(firm.health))
-        rd.state.unobserve()
-        hr.state.unobserve()
-        algorithm2.kill()
-
-        val algorithm3 = Importance(10000, firm.health, hr.state, s.state)
-        f.state.setCondition((f: Double) => f <= 20)
-        algorithm3.start()
-        algorithm3.stop()
-        println("Mean(Firm.health|Finance.state <= 20) = " + algorithm3.mean(firm.health))
-        println("Mean(HumanResources.state|Finance.state <= 20) = " + algorithm3.mean(hr.state))
-        println("Mean(Sales.state|Finance.state <= 20) = " + algorithm3.mean(s.state))
-        f.state.unobserve()
-        hr.state.unobserve()
-        algorithm3.kill()
-
-        // ... more queries to go
+		val Autori: Array[Autor] = Array.fill(5)(new Autor())
+        val Album: Array[Album] = Array.fill(10)(new Album())
+        val c: Array[Album] = Array.fill(10)(new Album())
+    
 	}
 }
