@@ -1,53 +1,66 @@
-package Lab8
+package Lab7
 
-import com.cra.figaro.language._
-import com.cra.figaro.library.compound.{If, CPD, RichCPD, OneOf}
+import com.cra.figaro.language.{Element, Select, Flip, Apply, Chain}
+import com.cra.figaro.library.compound.{^^}
 import com.cra.figaro.algorithm.factored.VariableElimination
+import com.cra.figaro.algorithm.sampling.Importance
+import com.cra.figaro.library.atomic.continuous.{Uniform}
+import com.cra.figaro.algorithm.sampling.MetropolisHastings
 
-object Ex3
-{
-	def main(args: Array[String])
-	{
-		val chapters = 10
-		val learn: Array[Element[Symbol]] = Array.fill(chapters)(Constant('putin))
-		val score: Array[Element[Int]] = Array.fill(chapters)(Constant(1))
-		val passes: Array[Element[Symbol]] = Array.fill(chapters)(Constant('picat))
+object Grammy {
 
-		learn(0) = Select(0.2 -> 'putin, 0.5 -> 'mediu, 0.3 -> 'tot)
-		for { chapter <- 1 until chapters }
-		{
-			learn(chapter) = CPD(learn(chapter - 1),
-				'tot -> Select(0.1 -> 'putin, 0.2 -> 'mediu, 0.7 -> 'tot),
-				'mediu -> Select(0.2 -> 'putin, 0.5 -> 'mediu, 0.3 -> 'tot),
-				'putin -> Select(0.7 -> 'putin, 0.2 -> 'mediu, 0.1 -> 'tot))
-		}
+	class Autor {
+		val popular = Flip(0.2)
+	}
 
-		for { chapter <- 0 until chapters }
-		{
-			score(chapter) = CPD(learn(chapter),
-				'tot -> Select(0.1 -> 1, 0.1 -> 2, 0.3 -> 3, 0.7 -> 4, 0.5 -> 5),
-				'mediu -> Select(0.1 -> 1, 0.4 -> 2, 0.8 -> 3, 0.5 -> 4, 0.1 -> 5),
-				'putin -> Select(0.4 -> 1, 0.6 -> 2, 0.2 -> 3, 0.1 -> 4, 0.1 -> 5))
-		}
+	class Album(val p: Autor) {
+		val calitate=Select(0.27 -> "mica", 0.6 -> "medie",0.13 ->"mare")
+	}
+    class Nominalizare(val p: Album) {
+		def getProb()
+        {
+            
+        }
+	}
 
-		for { chapter <- 0 until chapters }
-		{
-			passes(chapter) = RichCPD(score(chapter),
-				OneOf(1, 2) -> Constant('picat),
-				OneOf(3, 4) -> Constant('trecut),
-				OneOf(5) -> Constant('success))
-		}
+	
+	def main(args: Array[String]) {
+		val rd = new ResearchAndDevelopment()
+		val hr = new HumanResources()
+		val p = new Production(rd, hr)
+		val s = new Sales(p)
+		val f = new Finance(hr, s)
+		val firm = new Firm(rd, hr, p, s, f)
+        
+        val algorithm = Importance(10000, firm.health)
+        rd.state.setCondition((s: Double) => s >= 90)
+        algorithm.start()
+        algorithm.stop()
+        println("Mean(Firm.health|ResearchAndDevelopment.state >= 90) = " + algorithm.mean(firm.health))
+        rd.state.unobserve()
+        algorithm.kill()
 
-		println(VariableElimination.probability(passes(9), 'success))
+        val algorithm2 = Importance(10000, firm.health)
+        rd.state.setCondition((s: Double) => s >= 90)
+        hr.state.setCondition((s: Double) => s >= 95)
+        algorithm2.start()
+        algorithm2.stop()
+        println("Mean(Firm.health|ResearchAndDevelopment.state >= 90 & HumanResources.state >= 95) = " + algorithm2.mean(firm.health))
+        rd.state.unobserve()
+        hr.state.unobserve()
+        algorithm2.kill()
 
-		passes(0).observe('trecut)
-		println(VariableElimination.probability(passes(9), 'success))
+        val algorithm3 = Importance(10000, firm.health, hr.state, s.state)
+        f.state.setCondition((f: Double) => f <= 20)
+        algorithm3.start()
+        algorithm3.stop()
+        println("Mean(Firm.health|Finance.state <= 20) = " + algorithm3.mean(firm.health))
+        println("Mean(HumanResources.state|Finance.state <= 20) = " + algorithm3.mean(hr.state))
+        println("Mean(Sales.state|Finance.state <= 20) = " + algorithm3.mean(s.state))
+        f.state.unobserve()
+        hr.state.unobserve()
+        algorithm3.kill()
 
-		passes(1).observe('trecut)
-		println(VariableElimination.probability(passes(9), 'success))
-
-		passes(2).observe('trecut)
-		println(VariableElimination.probability(passes(9), 'success))
-
+        // ... more queries to go
 	}
 }
