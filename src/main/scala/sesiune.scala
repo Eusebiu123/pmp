@@ -19,12 +19,12 @@ object Grammy {
     class Nominalizare(val p: Album) {
 		def getProb() {
             val albumNominalizat = CPD(p.calitate, p.autor.popular,
-                ('mica', false) -> Flip(0.003)
-                ('mica', true) -> Flip(0.014)
-                ('medie', false) -> Flip(0.016)
-                ('medie', true) -> Flip(0.043)
-                ('mare', false) -> Flip(0.047)
-                ('mare', true) -> Flip(0.18)
+                ("mica", false) -> Flip(0.003)
+                ("mica", true) -> Flip(0.014)
+                ("medie", false) -> Flip(0.016)
+                ("medie", true) -> Flip(0.043)
+                ("mare", false) -> Flip(0.047)
+                ("mare", true) -> Flip(0.18)
         } 
 	}
 
