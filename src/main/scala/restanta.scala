@@ -35,4 +35,14 @@ object Ex1 {
 	def main(args: Array[String]) {
         val an = 12
 	}
+class Nominalizare(val album: Album) {
+   def getProb(calitate: Symbol, popularitate: Boolean) =
+     (calitate, popularitate) match {
+       case ('mica, false) => 0.003
+       case ('mica, true) => 0.014
+       case ('medie, false) => 0.016
+       case ('medie, true) => 0.043
+       case ('mare, false) => 0.047
+       case ('mare, true) => 0.18
+     }
 }
