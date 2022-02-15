@@ -46,10 +46,20 @@ object Ex1 {
         println("Sansa ca in luna 4 sa stagneze " + VariableElimination.probability(vanzariLuni(3).pret, "stagneaza"))
         println("Sansa ca in luna 4 sa creasca " + VariableElimination.probability(vanzariLuni(3).pret, "creste"))
 
+        println("Sansa ca in luna 4 sa scada " + Importance.probability(vanzariLuni(3).pret, "scade"))
+        println("Sansa ca in luna 4 sa stagneze " + Importance.probability(vanzariLuni(3).pret, "stagneaza"))
+        println("Sansa ca in luna 4 sa creasca " + Importance.probability(vanzariLuni(3).pret, "creste"))
+
         /*
         Sansa ca in luna 4 sa scada 0.2511419083524646
         Sansa ca in luna 4 sa stagneze 0.48189445158210303
         Sansa ca in luna 4 sa creasca 0.26696364006543244
+
+        Importance 
+
+        Sansa ca in luna 4 sa scada 0.25083782852233566
+        Sansa ca in luna 4 sa stagneze 0.4780999941355917
+        Sansa ca in luna 4 sa creasca 0.2638635185453416
         */
 
         vanzariLuni(0).vanzari.unobserve()
@@ -64,6 +74,22 @@ object Ex1 {
         /*
         Sansa ca in luna 2 preturile sa scada 0.2909290625680987
         Sansa ca in luna 3 preturile sa scada 0.1920933474277721
+        */
+
+        vanzariLuni(4).vanzari.unobserve()
+        vanzariLuni(5).vanzari.unobserve()
+
+        vanzariLuni(0).vanzari.observe("mediu")
+        vanzariLuni(1).vanzari.observe("mediu")
+        vanzariLuni(2).vanzari.observe("mediu")
+        vanzariLuni(3).vanzari.observe("foarte scazut")
+
+        println("Sansa sa fi crescut pretul: " + VariableElimination.probability(vanzariLuni(3).pret, "creste"))
+        println("Sansa sa fi crescut stagnat: " + VariableElimination.probability(vanzariLuni(3).pret, "stagneaza"))
+
+        /*
+        Sansa sa fi crescut pretul: 0.6420791928086462
+        Sansa sa fi crescut stagnat: 0.2726065235892014
         */
 	}
 }
